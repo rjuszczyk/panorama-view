@@ -29,7 +29,7 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     private final int mUVDataSize = 2;
     public float[] mModelMatrix = new float[16];
     public float mCameraZTarget = 1;
-    public boolean useGyro = false;
+
     TexturedMesh sphereMeshWithTexture;
     float ratio;
     long mLastTime = -1;

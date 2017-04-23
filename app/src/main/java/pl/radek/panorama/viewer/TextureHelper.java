@@ -19,8 +19,20 @@ public class TextureHelper {
 		return loadTexture(bitmap);
 	}
 
-	public static void releaseTexture(int handle) {
-		GLES20.glDeleteTextures(1, new int[]{handle}, 0);
+	public static int loadTexture(final Resources resources, final int resourceId, final int handle) {
+		final BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inScaled = false;    // No pre-scaling
+		final Bitmap bitmap = BitmapFactory.decodeResource(resources, resourceId, options);
+
+		return loadTexture(bitmap, handle);
+	}
+
+
+
+	public static int loadTexture(Bitmap bitmap) {
+		final int[] textureHandle = new int[1];
+		GLES20.glGenTextures(1, textureHandle, 0);
+		return loadTexture(bitmap, textureHandle[0]);
 	}
 
 	public static int loadTexture(Bitmap bitmap, int handle) {
@@ -45,10 +57,8 @@ public class TextureHelper {
 		Log.i("debug", "texutre loaded");
 		return textureHandle[0];
 	}
-	public static int loadTexture(Bitmap bitmap) {
-		final int[] textureHandle = new int[1];
-		GLES20.glGenTextures(1, textureHandle, 0);
-		return loadTexture(bitmap, textureHandle[0]);
+
+	public static void releaseTexture(int handle) {
+		GLES20.glDeleteTextures(1, new int[]{handle}, 0);
 	}
 }
-

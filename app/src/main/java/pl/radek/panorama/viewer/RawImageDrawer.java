@@ -2,16 +2,11 @@ package pl.radek.panorama.viewer;
 
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.opengl.GLES20;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
-
-import pl.radek.panorama.R;
 
 
 /**
@@ -21,38 +16,54 @@ import pl.radek.panorama.R;
 public class RawImageDrawer {
 	HashMap<Integer, Integer> textures = new HashMap<Integer, Integer>();
 	HashMap<Integer, Integer> texturesToReferencesCount = new HashMap<Integer, Integer>();
-	int height;
-	int width;
-
-	int mBytesPerFloat = 4;
 
 	Resources resources;
-	int program2DHandle;
-	FloatBuffer mScreenPositions;
-	FloatBuffer mUVs;
+
 
 	public RawImageDrawer(Resources r) {
 		resources = r;
-
-		mScreenPositions = ByteBuffer.allocateDirect(12 * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
-		//mScreenPositions.put(screenPointsData).position(0);
-
-		mUVs = ByteBuffer.allocateDirect(12 * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
 	}
 
 
 	public void loadTexture(int r_id) {
-		//if(textures.containsKey(r_id))return;
 		int mTextureDataHandle = TextureHelper.loadTexture(resources, r_id);
 		textures.put(r_id, mTextureDataHandle);
 	}
 
 	public void loadTexture(Bitmap bitmap) {
-		//if(textures.containsKey(r_id))return;
-		int mTextureDataHandle = TextureHelper.loadTexture(bitmap);
+		boolean a = isPowerOfTwo(bitmap.getHeight());
+		boolean b = isPowerOfTwo(bitmap.getWidth());
+
+		Bitmap bitmapScaled = bitmap;
+
+		if(!a || !b) {
+			int height = a ? bitmap.getHeight() : nextPowerOfTwo(bitmap.getHeight());
+			int width = b ? bitmap.getWidth() : nextPowerOfTwo(bitmap.getWidth());
+			bitmapScaled  = Bitmap.createScaledBitmap(bitmap, width,
+					height, true);
+		}
+
+		int mTextureDataHandle = TextureHelper.loadTexture(bitmapScaled);
 		textures.put(bitmap.hashCode(), mTextureDataHandle);
+	}
+
+	private boolean isPowerOfTwo(int number) {
+		int n = 1;
+		while (n < number) {
+			if(n==number) {
+				return true;
+			}
+			n<<=1;
+		}
+		return false;
+	}
+
+	private int nextPowerOfTwo(int number) {
+		int n = 1;
+		while (n < number) {
+			n<<=1;
+		}
+		return n;
 	}
 
 	public int getTextureHandlerOrLoad(Bitmap bitmap) {
@@ -67,8 +78,7 @@ public class RawImageDrawer {
 		}
 		texturesToReferencesCount.put(handle, ++currentReferenceCount);
 
-
-		return (int) handle;
+		return handle;
 	}
 
 	public void releaseHandle(int handle) {
@@ -93,7 +103,6 @@ public class RawImageDrawer {
 			}
 			TextureHelper.releaseTexture(handle);
 		}
-
 	}
 
 	public int getTextureHandlerOrLoad(int r_id) {
@@ -114,112 +123,6 @@ public class RawImageDrawer {
 		if (!textures.containsKey(r_id)) {
 			return -1;
 		}
-		return (int) textures.get(r_id);
+		return textures.get(r_id);
 	}
-
-	public void initImageDrawing() {
-		String vertexShaderCode = RawResourceReader.readTextFileFromRawResource(resources, R.raw.program2dvertexshader);
-		String fragmentShaderCode = RawResourceReader.readTextFileFromRawResource(resources, R.raw.program2dfragmentshader);
-
-		int vertexShaderHandle = ShaderHelper.compileShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-		int fragmentShaderHandle = ShaderHelper.compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-		String[] attributes = {"vertexPosition_screenspace", "vertexUV"};
-		program2DHandle = ShaderHelper.createAndLinkProgram(vertexShaderHandle, fragmentShaderHandle, attributes);
-	}
-
-//    public void drawNumber(int x, int y, int numHeight, int number) {
-//
-//        LinkedList<Integer> heap = new LinkedList<Integer>()
-//
-//        int numWidth=(int)(numHeight*29.0/40.0);
-//
-//
-//        int offsetRight = (int)(Math.log10(number));
-//        offsetRight++;
-//        if(number==0)
-//            offsetRight=1;
-//        offsetRight = numWidth * offsetRight;
-//
-//        int whereX = x;
-//
-//        do{
-//            int cyfra = number%10;
-//            number = number/10;
-//            heap.push(cyfra);
-//        }while(number!=0);
-//
-//
-//
-//
-//
-//        int offset = 0;
-//        while(!heap.isEmpty()) {
-//            int cyfra = heap.pop();
-//            int off=offset*numWidth;
-//            offset++;
-//
-//            switch(cyfra) {
-//                case 0 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._0); break;
-//                case 1 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._1); break;
-//                case 2 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._2); break;
-//                case 3 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._3); break;
-//                case 4 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._4); break;
-//                case 5 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._5); break;
-//                case 6 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._6); break;
-//                case 7 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._7); break;
-//                case 8 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._8); break;
-//                case 9 : this.drawIMG(whereX+off, y, numWidth, numHeight, R.raw._9); break;
-//                default: break;
-//            }
-//        }
-//    }
-
-//    public void drawBestScore(int score) {
-//
-//        LinkedList<Integer> heap = new LinkedList<Integer>();
-//
-//
-//        int numWidth=29;
-//        int numHeight=40;
-//
-//
-//        int offsetRight = (int)(Math.log10(score));
-//        offsetRight++;
-//        if(score==0)
-//            offsetRight=1;
-//        offsetRight = numWidth * offsetRight;
-//
-//        int whereX = width - offsetRight;
-//
-//        do{
-//            int cyfra = score%10;
-//            score = score/10;
-//            heap.push(cyfra);
-//        }while(score!=0);
-//
-//
-//
-//
-//
-//        int offset = 0;
-//        while(!heap.isEmpty()) {
-//            int cyfra = heap.pop();
-//            int off=offset*numWidth;
-//            offset++;
-//            switch(cyfra) {
-//                case 0 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._0); break;
-//                case 1 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._1); break;
-//                case 2 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._2); break;
-//                case 3 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._3); break;
-//                case 4 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._4); break;
-//                case 5 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._5); break;
-//                case 6 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._6); break;
-//                case 7 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._7); break;
-//                case 8 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._8); break;
-//                case 9 : this.drawIMG(whereX+off, 0, numWidth, numHeight, R.raw._9); break;
-//                default: break;
-//            }
-//        }
-//    }
 }
