@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import java.nio.FloatBuffer;
 
@@ -65,11 +66,12 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     private float velocityX = 0;
     private float velocityY = 0;
 
-    public PanoramaRenderer(Context context, RawImageDrawer imageDrawer, int modelResourceId, int textureResourceId) {
+    public PanoramaRenderer(Context context, RawImageDrawer imageDrawer, int modelResourceId) {
         mResources = context.getResources();
         mImageDrawer = imageDrawer;
         mModelResourceId = modelResourceId;
-        mTextureResourceId = textureResourceId;
+        mTextureResourceId = -1;
+        initTouchRotation();
     }
 
     @Override
@@ -113,8 +115,12 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
 
 
         Mesh sphereMesh = Mesh.getMeshSerialized(mModelResourceId, mResources);
-        int currentTextureHanlde = mImageDrawer.getTextureHandlerOrLoad(mTextureResourceId);
-        sphereMeshWithTexture = new TexturedMesh(sphereMesh, currentTextureHanlde);
+        if(mTextureResourceId == -1) {
+            sphereMeshWithTexture = new TexturedMesh(sphereMesh, -1);
+        } else {
+            int currentTextureHanlde = mImageDrawer.getTextureHandlerOrLoad(mTextureResourceId);
+            sphereMeshWithTexture = new TexturedMesh(sphereMesh, currentTextureHanlde);
+        }
         //sphereMesh = Mesh.getMeshSerialized(mModelResourceId, mResources, mTextureResourceId);
         //imgDrawer.setScreenSize(height, width);
     }
@@ -292,6 +298,10 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
             Matrix.rotateM(mModelMatrix, 0, -mModelRotationZ, right[0], right[1], right[2]);
         }
 
+        Matrix.setIdentityM(mModelMatrix, 0);
+        Matrix.multiplyMM(mModelMatrix, 0, mModelMatrix, 0,touchRotationMatrix,0);
+
+
         drawMesh(sphereMeshWithTexture, mProjectionMatrix);
     }
 
@@ -407,5 +417,52 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
                 }
             }
         };
+    }
+
+    float[] right = new float[]{1,0,0,0};
+    float[] up = new float[]{0,1,0,0};
+    float[] touchRotationMatrix = new float[16];
+    public void initTouchRotation() {
+        Matrix.setIdentityM(touchRotationMatrix, 0);
+    }
+
+    public void rotate(float x, float y) {
+        float[] identity = new float[16];
+        Matrix.setIdentityM(identity, 0);
+        //Matrix.setRotateEulerM(identity, 0, 0, x, 0);
+        Matrix.rotateM(identity, 0, x, 0,1,0);
+        Matrix.rotateM(identity, 0, y, 1,0,0);
+        Matrix.multiplyMM(touchRotationMatrix, 0, identity, 0, touchRotationMatrix, 0);
+    }
+
+    public void rotateZ(float z) {
+        float[] identity = new float[16];
+        Matrix.setIdentityM(identity, 0);
+        Matrix.rotateM(identity, 0, z, 0,0,1);
+        Matrix.multiplyMM(touchRotationMatrix, 0, identity, 0, touchRotationMatrix, 0);
+    }
+
+    public void rotateRight(float v) {
+
+        Matrix.rotateM(touchRotationMatrix, 0, v, up[0], up[1], up[2]);
+
+        float[] identity = new float[16];
+
+        Matrix.setIdentityM(identity, 0);
+
+        Matrix.rotateM(identity, 0, v, up[0], up[1], up[2]);
+
+        Matrix.multiplyMV(right, 0, identity, 0, right, 0);
+        Log.d("right", String.format("(%f, %f, %f)", right[0], right[1], right[2]));
+    }
+
+    public void rotateUp(float v) {
+        Matrix.rotateM(touchRotationMatrix, 0, v, right[0], right[1], right[2]);
+
+        float[] identity = new float[16];
+        Matrix.setIdentityM(identity, 0);
+        Matrix.rotateM(identity, 0, v, right[0], right[1], right[2]);
+//
+//        Matrix.multiplyMV(up, 0, identity, 0, up, 0);
     }
 }
