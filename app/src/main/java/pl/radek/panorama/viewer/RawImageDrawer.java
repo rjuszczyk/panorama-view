@@ -9,6 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.HashMap;
+import java.util.Map;
 
 import pl.radek.panorama.R;
 
@@ -17,8 +18,9 @@ import pl.radek.panorama.R;
  * Created by radoslaw.juszczyk on 2015-03-18.
  */
 
-public class ImageDrawer {
+public class RawImageDrawer {
 	HashMap<Integer, Integer> textures = new HashMap<Integer, Integer>();
+	HashMap<Integer, Integer> texturesToReferencesCount = new HashMap<Integer, Integer>();
 	int height;
 	int width;
 
@@ -29,7 +31,7 @@ public class ImageDrawer {
 	FloatBuffer mScreenPositions;
 	FloatBuffer mUVs;
 
-	public ImageDrawer(Resources r) {
+	public RawImageDrawer(Resources r) {
 		resources = r;
 
 		mScreenPositions = ByteBuffer.allocateDirect(12 * mBytesPerFloat)
@@ -39,130 +41,7 @@ public class ImageDrawer {
 		mUVs = ByteBuffer.allocateDirect(12 * mBytesPerFloat)
 				.order(ByteOrder.nativeOrder()).asFloatBuffer();
 	}
-	/*public void loadTextures() {
 
-        this.loadTexture(R.raw._0);
-        this.loadTexture(R.raw._1);
-        this.loadTexture(R.raw._2);
-        this.loadTexture(R.raw._3);
-        this.loadTexture(R.raw._4);
-        this.loadTexture(R.raw._5);
-        this.loadTexture(R.raw._6);
-        this.loadTexture(R.raw._7);
-        this.loadTexture(R.raw._8);
-        this.loadTexture(R.raw._9);
-        this.loadTexture(R.raw._0);
-
-        this.loadTexture(R.raw.back_button);
-        this.loadTexture(R.raw.exit_button);
-        this.loadTexture(R.raw.resume_button);
-        this.loadTexture(R.raw.start_button);
-
-        this.loadTexture(R.raw.theme_bg);
-
-
-        this.loadTexture(R.raw.start_game);
-        this.loadTexture(R.raw.you_lose);
-        this.loadTexture(R.raw.you_lose_text);
-        this.loadTexture(R.raw.you_win_text);
-        this.loadTexture(R.raw.wide_pause);
-        this.loadTexture(R.raw.wide_menu);
-        //this.loadTexture(R.raw.winner);
-        this.loadTexture(R.raw.loading_meshes);
-        this.loadTexture(R.raw.loading_textures);
-        this.loadTexture(R.raw.start_button);
-        this.loadTexture(R.raw.new_level_unlocked);
-        this.loadTexture(R.raw.new_record);
-        this.loadTexture(R.raw.notyet1);
-        this.loadTexture(R.raw.notyet2);
-        this.loadTexture(R.raw.notyet3);
-        this.loadTexture(R.raw.notyet4);
-        this.loadTexture(R.raw.serce);
-        this.loadTexture(R.raw.pause);
-
-        this.loadTexture(R.raw.level1);
-        this.loadTexture(R.raw.level2);
-        this.loadTexture(R.raw.level3);
-        this.loadTexture(R.raw.level2locked);
-        this.loadTexture(R.raw.level3locked);
-
-        this.loadTexture(R.raw.tex1);
-        this.loadTexture(R.raw.tex2);
-        this.loadTexture(R.raw.tex3);
-        this.loadTexture(R.raw.tex4);
-        this.loadTexture(R.raw.rury2_textura);
-        Log.i("textures", "textures loaded");
-    }*/
-
-	public void setScreenSize(int h, int w) {
-		this.width = w;
-		this.height = h;
-	}
-
-	public void drawIMG(int imageResourceHandle) {
-		double ratio = this.width / this.height;
-		int offset = (int) ((ratio - 2.0) * this.height * 0.5);
-		drawIMG(offset, 0, this.width - offset, this.height, imageResourceHandle);
-	}
-
-	public void drawIMG(float x, float y, float width, float height, int imageResourceHandle) {
-		//Log.e("debug2", "image_res="+imageResourceHandle);
-		//x=x+20;
-		float[] screenPointsData = {
-				x, this.height - y,
-				x, this.height - y - height,
-				x + width, this.height - y,
-
-
-				x, this.height - y - height,
-				x + width, this.height - y - height,
-				x + width, this.height - y
-		};
-		//float max = width>height ? width : height;
-		float[] UVsData = {
-				0.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 0.0f,
-
-
-				0.0f, 1.0f,
-				1.0f, 1.0f,
-				1.0f, 0.0f
-		};
-		mScreenPositions.position(0);
-		mScreenPositions.put(screenPointsData).position(0);
-		mUVs.position(0);
-		mUVs.put(UVsData).position(0);
-
-		GLES20.glUseProgram(program2DHandle);
-
-		int vertexPosition_screenspace = GLES20.glGetAttribLocation(program2DHandle, "vertexPosition_screenspace");
-		int vertexUV = GLES20.glGetAttribLocation(program2DHandle, "vertexUV");
-		int myTextureSampler = GLES20.glGetUniformLocation(program2DHandle, "myTextureSampler");
-		int screenSizeHalf = GLES20.glGetUniformLocation(program2DHandle, "screenSizeHalf");
-
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-
-		int mTextureDataHandle = getTextureHandler(imageResourceHandle);//textures.get(imageResourceHandle);
-		//  the texture to this unit.
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
-
-		// Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
-		GLES20.glUniform1i(myTextureSampler, 0);
-		GLES20.glUniform2f(screenSizeHalf, this.width / 2, this.height / 2);
-		// Pass in the position information
-		mScreenPositions.position(0);
-		GLES20.glVertexAttribPointer(vertexPosition_screenspace, 2, GLES20.GL_FLOAT, false, 0, mScreenPositions);
-		GLES20.glEnableVertexAttribArray(vertexPosition_screenspace);
-
-		mUVs.position(0);
-		GLES20.glVertexAttribPointer(vertexUV, 2, GLES20.GL_FLOAT, false, 0, mUVs);
-		GLES20.glEnableVertexAttribArray(vertexUV);
-
-		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
-		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-	}
 
 	public void loadTexture(int r_id) {
 		//if(textures.containsKey(r_id))return;
@@ -176,18 +55,64 @@ public class ImageDrawer {
 		textures.put(bitmap.hashCode(), mTextureDataHandle);
 	}
 
-	public int getTextureHandler(Bitmap bitmap) {
+	public int getTextureHandlerOrLoad(Bitmap bitmap) {
 		if (!textures.containsKey(bitmap.hashCode())) {
 			Log.e("texutre", "" + bitmap.hashCode());
 			loadTexture(bitmap);
 		}
-		return (int) textures.get(bitmap.hashCode());
+		int currentReferenceCount = 0;
+		int handle = textures.get(bitmap.hashCode());
+		if(texturesToReferencesCount.containsKey(handle)) {
+			currentReferenceCount = texturesToReferencesCount.get(handle);
+		}
+		texturesToReferencesCount.put(handle, ++currentReferenceCount);
+
+
+		return (int) handle;
 	}
 
-	public int getTextureHandler(int r_id) {
+	public void releaseHandle(int handle) {
+
+		int count = texturesToReferencesCount.get(handle);
+		count--;
+		if(count == 0) {
+			texturesToReferencesCount.remove(handle);
+		} else {
+			texturesToReferencesCount.put(handle, count);
+		}
+
+		if(count == 0) {
+			int removeThisKey = -1;
+			for (Map.Entry<Integer, Integer> integerIntegerEntry : textures.entrySet()) {
+				if (integerIntegerEntry.getValue() == handle) {
+					removeThisKey = integerIntegerEntry.getKey();
+				}
+			}
+			if (removeThisKey != -1) {
+				textures.remove(removeThisKey);
+			}
+			TextureHelper.releaseTexture(handle);
+		}
+
+	}
+
+	public int getTextureHandlerOrLoad(int r_id) {
 		if (!textures.containsKey(r_id)) {
 			Log.e("texutre", "" + r_id);
 			loadTexture(r_id);
+		}
+		int handle = textures.get(r_id);
+		int currentReferenceCount = 0;
+		if(texturesToReferencesCount.containsKey(handle)) {
+			currentReferenceCount = texturesToReferencesCount.get(handle);
+		}
+		texturesToReferencesCount.put(handle, ++currentReferenceCount);
+		return handle;
+	}
+
+	public int getTextureHandle(int r_id) {
+		if (!textures.containsKey(r_id)) {
+			return -1;
 		}
 		return (int) textures.get(r_id);
 	}

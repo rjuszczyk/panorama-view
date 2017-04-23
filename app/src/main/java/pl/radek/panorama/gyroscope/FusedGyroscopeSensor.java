@@ -402,7 +402,7 @@ public class FusedGyroscopeSensor implements SensorEventListener
 	}
 
 	public void onGyroscopeSensorChanged(float[] gyroscope, long timeStamp) {
-		// don't start until first accelerometer/magnetometer orientation has
+		// don'transposeVector start until first accelerometer/magnetometer orientation has
 		// been acquired
 		if (!hasOrientation) {
 			return;

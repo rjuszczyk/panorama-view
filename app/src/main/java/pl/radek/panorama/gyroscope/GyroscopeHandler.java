@@ -60,8 +60,6 @@ public class GyroscopeHandler implements SensorEventListener,
 	// We need the SensorManager to register for Sensor Events.
 	private SensorManager sensorManager;
 
-	;
-
 	public void start(Context context, OnGyroscopeChanged onGyroscopeChanged) {
 		mOnGyroscopeChanged = onGyroscopeChanged;
 		mContext = context;
@@ -80,8 +78,6 @@ public class GyroscopeHandler implements SensorEventListener,
 	@Override
 
 	public void onSensorChanged(SensorEvent event) {
-
-		Log.d("values", "l="+event.values.length);
 
 		FusedGyroscopeSensor.changeArray(mContext, event.values);
 		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -116,14 +112,18 @@ public class GyroscopeHandler implements SensorEventListener,
 	}
 
 
-	float[] t(float[] a) {
+	public static float[] transposeVector(float[] a) {
 		//return a;
 		//return new float[]{a[1], -a[0], -a[2]};
+		if(a.length==4) {
+			return new float[]{a[2], a[0] , a[1], a[3]};
+		}
 		return new float[]{a[2], a[0] , a[1]};
+
 	}
 	public void onAccelerationSensorChanged(float[] acceleration, long timeStamp) {
 
-		//acceleration = t(acceleration);
+		acceleration = transposeVector(acceleration);
 
 		// Get a local copy of the raw magnetic values from the device sensor.
 		System.arraycopy(acceleration, 0, this.acceleration, 0, acceleration.length);
@@ -136,7 +136,7 @@ public class GyroscopeHandler implements SensorEventListener,
 
 		// Only determine the initial orientation after the acceleration sensor
 		// and magnetic sensor have had enough time to be smoothed by the mean
-		// filters. Also, only do this if the orientation hasn't already been
+		// filters. Also, only do this if the orientation hasn'transposeVector already been
 		// determined since we only need it once.
 		if (accelerationSampleCount > MIN_SAMPLE_COUNT
 				&& magneticSampleCount > MIN_SAMPLE_COUNT
@@ -147,9 +147,9 @@ public class GyroscopeHandler implements SensorEventListener,
 
 	public void onGyroscopeSensorChanged(float[] gyroscope, long timestamp) {
 
-		//gyroscope = t(gyroscope);
+		gyroscope = transposeVector(gyroscope);
 
-		// don't start until first accelerometer/magnetometer orientation has
+		// don'transposeVector start until first accelerometer/magnetometer orientation has
 		// been acquired
 		if (!hasInitialOrientation) {
 			return;
@@ -224,8 +224,8 @@ public class GyroscopeHandler implements SensorEventListener,
 
 	public void onGyroscopeSensorUncalibratedChanged(float[] gyroscope,
 													 long timestamp) {
-		//gyroscope = t(gyroscope);
-		// don't start until first accelerometer/magnetometer orientation has
+		gyroscope = transposeVector(gyroscope);
+		// don'transposeVector start until first accelerometer/magnetometer orientation has
 		// been acquired
 		if (!hasInitialOrientation) {
 			return;
@@ -291,7 +291,7 @@ public class GyroscopeHandler implements SensorEventListener,
 	public void onMagneticSensorChanged(float[] magnetic, long timeStamp) {
 		// Get a local copy of the raw magnetic values from the device sensor.
 
-		//magnetic=t(magnetic);
+		magnetic=transposeVector(magnetic);
 
 		// Get a local copy of the raw magnetic values from the device sensor.
 
@@ -416,7 +416,7 @@ public class GyroscopeHandler implements SensorEventListener,
 	 * initial state. This should only be called *after* a call to reset().
 	 */
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-	private void restart() {
+	public void restart() {
 		sensorManager.registerListener(this,
 				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
 				SensorManager.SENSOR_DELAY_FASTEST);
@@ -485,7 +485,10 @@ public class GyroscopeHandler implements SensorEventListener,
 	 * initial state.
 	 */
 	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-	private void reset() {
+	public void reset() {
+
+		hasInitialOrientation = false;
+
 		sensorManager.unregisterListener(this,
 				sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
 

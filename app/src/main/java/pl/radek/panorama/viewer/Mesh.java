@@ -3,7 +3,6 @@ package pl.radek.panorama.viewer;
 import android.content.res.Resources;
 import android.os.SystemClock;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -41,7 +40,6 @@ public class Mesh {
 	private final int mNormalDataSize = 3;
 	private int mPositionHandle;
 	private int mNormalHandle;
-	private int tex_resourceID;
 	private FloatBuffer positions;
 	private FloatBuffer normals;
 	private FloatBuffer uvs;
@@ -49,11 +47,10 @@ public class Mesh {
 	private int trianglesCount;
 	private int mTextureDataHandle;
 
-	public Mesh(int resourceID, Resources resources, float[] colorData, int tex_resourceID) {
+	public Mesh(int resourceID, Resources resources, float[] colorData) {
 		Log.i("debug", "openning mesh rid=" + resourceID);
 		// Load the texture
 		//mTextureDataHandle = TextureHelper.loadTexture(resources, R.raw.tex1);
-		this.tex_resourceID = tex_resourceID;
 
 
 		ArrayList<vec3f> temp_vertices = new ArrayList<vec3f>();
@@ -219,7 +216,7 @@ public class Mesh {
 		color = colorData;
 	}
 
-	public Mesh(float[] positionsData, float[] normalsData, float[] uvsData, float[] colorData, int tex_resourceID) {
+	public Mesh(float[] positionsData, float[] normalsData, float[] uvsData, float[] colorData) {
 
 		this.positions = ByteBuffer.allocateDirect(positionsData.length * mBytesPerFloat)
 				.order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -234,21 +231,20 @@ public class Mesh {
 		this.uvs.put(uvsData).position(0);
 		trianglesCount = (int) positionsData.length / mPositionDataSize;
 		color = colorData;
-		this.tex_resourceID = tex_resourceID;
 	}
 
-	public static Mesh getMesh(int resourceID, Resources resources, int tex_resourceID) {
+	public static Mesh getMesh(int resourceID, Resources resources) {
 		if (meshes.containsKey(resourceID))
 			return meshes.get(resourceID);
 
-		Mesh mesh = new Mesh(resourceID, resources, new float[]{1.0f, 0.0f, 0.0f, 1.0f}, tex_resourceID);
+		Mesh mesh = new Mesh(resourceID, resources, new float[]{1.0f, 0.0f, 0.0f, 1.0f});
 		meshes.put(resourceID, mesh);
 		return mesh;
 	}
 
-	public static Mesh getMeshSerialized(int serializedResourceID, Resources resources, int tex_resourceID) {
-		if (meshes.containsKey(serializedResourceID) && meshes.get(serializedResourceID).tex_resourceID == tex_resourceID) {
-			meshes.get(serializedResourceID);
+	public static Mesh getMeshSerialized(int serializedResourceID, Resources resources) {
+		if (meshes.containsKey(serializedResourceID)) {
+			return meshes.get(serializedResourceID);
 		}
 
 		float[] positionsData = null;
@@ -270,7 +266,7 @@ public class Mesh {
 			Log.e("serialized", "serialization gone wrong");
 			e.printStackTrace();
 		}
-		Mesh mesh = new Mesh(positionsData, normalsData, uvsData, new float[]{1.0f, 0.0f, 0.0f, 1.0f}, tex_resourceID);
+		Mesh mesh = new Mesh(positionsData, normalsData, uvsData, new float[]{1.0f, 0.0f, 0.0f, 1.0f});
 		meshes.put(serializedResourceID, mesh);
 		return mesh;
 	}
@@ -293,10 +289,6 @@ public class Mesh {
 
 	public float[] getColor() {
 		return color;
-	}
-
-	public int getTextureDataHandle(ImageDrawer imageDrawer) {
-		return imageDrawer.getTextureHandler(this.tex_resourceID);
 	}
 
 	private class vec3f {

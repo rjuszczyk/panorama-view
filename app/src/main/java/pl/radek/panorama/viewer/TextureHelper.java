@@ -19,14 +19,16 @@ public class TextureHelper {
 		return loadTexture(bitmap);
 	}
 
-	public static int loadTexture(Bitmap bitmap) {
-		final int[] textureHandle = new int[1];
-		GLES20.glGenTextures(1, textureHandle, 0);
+	public static void releaseTexture(int handle) {
+		GLES20.glDeleteTextures(1, new int[]{handle}, 0);
+	}
+
+	public static int loadTexture(Bitmap bitmap, int handle) {
+		final int[] textureHandle = new int[]{handle};
 
 		if (textureHandle[0] != 0) {
 			// Bind to the texture in OpenGL
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
-
 			// Set filtering
 			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
 			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
@@ -42,6 +44,11 @@ public class TextureHelper {
 		}
 		Log.i("debug", "texutre loaded");
 		return textureHandle[0];
+	}
+	public static int loadTexture(Bitmap bitmap) {
+		final int[] textureHandle = new int[1];
+		GLES20.glGenTextures(1, textureHandle, 0);
+		return loadTexture(bitmap, textureHandle[0]);
 	}
 }
 
