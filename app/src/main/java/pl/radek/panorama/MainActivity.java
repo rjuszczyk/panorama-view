@@ -27,17 +27,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                panoramaGLSurfaceView.setTexRawResourceID(R.drawable.pano2);
-//                Glide
-//                        .with(getApplicationContext())
-//                        .load("http://michel.thoby.free.fr/360x180_Vs_360x360_Contreversy/North_South_Panorama_Equirect_360x180.jpg")
-//                        .asBitmap()
-//                        .into(new SimpleTarget<Bitmap>() {
-//                            @Override
-//                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-//                                panoramaGLSurfaceView.setTex_bitmap(resource);
-//                            }
-//                        });
+//                panoramaGLSurfaceView.setTexRawResourceID(R.raw.pano1024);
+                Glide
+                        .with(getApplicationContext())
+                        .load("http://michel.thoby.free.fr/360x180_Vs_360x360_Contreversy/North_South_Panorama_Equirect_360x180.jpg")
+                        .asBitmap()
+                        .into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                panoramaGLSurfaceView.setTex_bitmap(resource);
+                            }
+                        });
 //                Glide.with(MainActivity.this)
 //                        .load("http://michel.thoby.free.fr/360x180_Vs_360x360_Contreversy/North_South_Panorama_Equirect_360x180.jpg")
 //                        .asBitmap()

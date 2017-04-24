@@ -33,6 +33,7 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 	MoveGestureDetector mMoveDetector;
 	RawImageDrawer mImageDrawer;
 	RotateGestureDetector mRotateGestureDetector;
+	GestureDetector mFlingDetector;
 
 	GyroscopeHandler gyroscopeHandler;
 	GyroscopeHandler gyroscopeHandler2;
@@ -41,7 +42,7 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 	private float mScaleFactor = 1;
 	private float xrot;                    //X Rotation
 	private float yrot;                    //Y Rotation
-
+	int beginEvents = 0;
 
 	private ScaleGestureDetector mScaleGestureDetector;
 	private boolean isGyroAvailable;
@@ -86,6 +87,41 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 		//mGestureDetector = new GestureDetector(context, new MyOnGestureListener());
 		mMoveDetector = new MoveGestureDetector(context, new MoveListener());
 		mRotateGestureDetector = new RotateGestureDetector(context, new MyRotateGestureDetector());
+		mFlingDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
+
+			@Override
+			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+
+				return false;
+			}
+
+			@Override
+			public void onLongPress(MotionEvent e) {
+
+			}
+
+			@Override
+			public boolean onDown(MotionEvent motionEvent) {
+				return false;
+			}
+
+			@Override
+			public void onShowPress(MotionEvent motionEvent) {
+
+			}
+
+			@Override
+			public boolean onSingleTapUp(MotionEvent event) {
+
+				return false;
+			}
+
+			@Override
+			public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+				return false;
+			}
+		});
 		mScaleFactor = mDefaultModelScale;
 
 		mImageDrawer = new RawImageDrawer(getResources());
@@ -100,8 +136,10 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 
 	public boolean onTouchEvent(MotionEvent event) {
 		boolean retVal = mRotateGestureDetector.onTouchEvent(event);
-		retVal = retVal || mMoveDetector.onTouchEvent(event);
-		retVal = retVal||  mScaleGestureDetector.onTouchEvent(event);
+		retVal = mScaleGestureDetector.onTouchEvent(event) || retVal;
+
+		retVal = mMoveDetector.onTouchEvent(event) || retVal;
+		retVal = mFlingDetector.onTouchEvent(event) || retVal;
 //		retVal = mGestureDetector.onTouchEvent(event) || retVal;
 		return retVal || super.onTouchEvent(event);
 	}
@@ -125,7 +163,7 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 		gyroscopeHandler2 = new GyroscopeHandler();
 		currentGyroHandler = 2;
 
-		isGyroAvailable = false;//true;
+		isGyroAvailable = true;
 
 		gyroscopeHandler.start(getContext(), new GyroscopeHandler.OnGyroscopeChanged() {
 
@@ -272,12 +310,15 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 		}
 		@Override
 		public boolean onScaleBegin(ScaleGestureDetector detector) {
+			beginEvents++;
 			return true;
 		}
 
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector) {
+			beginEvents--;
 			super.onScaleEnd(detector);
+
 		}
 	}
 
@@ -291,12 +332,13 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 
 		@Override
 		public boolean onRotateBegin(RotateGestureDetector detector) {
+			beginEvents++;
 			return true;
 		}
 
 		@Override
 		public void onRotateEnd(RotateGestureDetector detector) {
-
+			beginEvents--;
 		}
 	}
 
@@ -317,6 +359,9 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 	private class MoveListener implements MoveGestureDetector.OnMoveGestureListener {
 		@Override
 		public boolean onMove(MoveGestureDetector detector) {
+			if (beginEvents != 0) {
+				return true;
+			}
 			float distanceX = detector.getFocusDelta().x;
 			float distanceY = detector.getFocusDelta().y;
 

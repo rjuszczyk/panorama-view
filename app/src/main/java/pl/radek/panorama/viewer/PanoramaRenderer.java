@@ -298,7 +298,7 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
             Matrix.rotateM(mModelMatrix, 0, -mModelRotationZ, right[0], right[1], right[2]);
         }
 
-        Matrix.setIdentityM(mModelMatrix, 0);
+        //Matrix.setIdentityM(mModelMatrix, 0);
         Matrix.multiplyMM(mModelMatrix, 0, mModelMatrix, 0,touchRotationMatrix,0);
 
 

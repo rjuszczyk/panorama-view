@@ -100,21 +100,13 @@ public class GyroscopeHandler implements SensorEventListener,
 	@Override
 	public void onAngularVelocitySensorChanged(float[] angularVelocity,
 											   long timeStamp) {
-//        if (useRadianUnits)
-//        {
-//            Log.d("sensor", "x= " + (df.format(angularVelocity[0])) +"\ty= " + (df.format(angularVelocity[1]))+"	z= " + (df.format(angularVelocity[2])));
-//
-//        }
-//        else
-//        {
-//            Log.d("sensor", "x= " + (df.format(Math.toDegrees(angularVelocity[0])))+"\ty= " + (df.format(Math.toDegrees(angularVelocity[1])))+"\tz= " + (df.format(Math.toDegrees(angularVelocity[2]))));
-//        }
+
 	}
 
 
 	public static float[] transposeVector(float[] a) {
-		//return a;
-		//return new float[]{a[1], -a[0], -a[2]};
+		if(1==1)
+		return a;
 		if(a.length==4) {
 			return new float[]{a[2], a[0] , a[1], a[3]};
 		}
