@@ -105,8 +105,7 @@ public class GyroscopeHandler implements SensorEventListener,
 
 
 	public static float[] transposeVector(float[] a) {
-		if(1==1)
-		return a;
+
 		if(a.length==4) {
 			return new float[]{a[2], a[0] , a[1], a[3]};
 		}
