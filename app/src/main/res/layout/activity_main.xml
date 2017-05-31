@@ -40,7 +40,7 @@
             card_view:cardElevation="8dp"
             card_view:cardCornerRadius="8dp"
             >
-            <pl.radek.panorama.viewer.PanoramaGLSurfaceView
+            <pl.rjuszczyk.panorama.viewer.PanoramaGLSurfaceView
                 android:id="@+id/panorama"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 
-import pl.radek.panorama.viewer.PanoramaGLSurfaceView;
+import pl.rjuszczyk.panorama.viewer.PanoramaGLSurfaceView;
 
 public class MainActivity extends AppCompatActivity {
     PanoramaGLSurfaceView panoramaGLSurfaceView;
