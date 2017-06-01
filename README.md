@@ -4,6 +4,22 @@ PanoramaView for displaying 360 images.
 Supports gyroscope rotation, it is calibrated with magnetometer to prevent gyroscope drift and to provide every time the same orientation.
 If there is no gyroscope available it can be rotated by touch.
 
+# Download
+
+* Grab via Gradle:
+```groovy
+compile 'pl.rjuszczyk:panorama-view:0.0.2'
+```
+* or Maven:
+```xml
+<dependency>
+  <groupId>pl.rjuszczyk</groupId>
+  <artifactId>panorama-view</artifactId>
+  <version>0.0.2</version>
+  <type>pom</type>
+</dependency>
+```
+
 # Features
 
 * Same orientation (calibrated with magnetometer and accelerometer)
