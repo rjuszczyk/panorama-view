@@ -23,11 +23,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         panoramaGLSurfaceView = (PanoramaGLSurfaceView) findViewById(R.id.panorama);
         img = (ImageView) findViewById(R.id.image);
+        panoramaGLSurfaceView.setPanoramaResourceId(R.raw.pano1024);
         findViewById(R.id.change).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                panoramaGLSurfaceView.setTexDrawableResourceID(R.drawable.pano2);
 
-//                panoramaGLSurfaceView.setTexRawResourceID(R.raw.pano1024);
                 Glide
                         .with(getApplicationContext())
                         .load("http://michel.thoby.free.fr/360x180_Vs_360x360_Contreversy/North_South_Panorama_Equirect_360x180.jpg")
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                         .into(new SimpleTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                panoramaGLSurfaceView.setTex_bitmap(resource);
+                                panoramaGLSurfaceView.setPanoramaBitmap(resource);
                             }
                         });
 //                Glide.with(MainActivity.this)
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 //                    default:
 //                        resId = R.raw.pano;
 //                }
-//                panoramaGLSurfaceView.setTexRawResourceID(resId);
+//                panoramaGLSurfaceView.setPanoramaResourceId(resId);
             }
         });
 

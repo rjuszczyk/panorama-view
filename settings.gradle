@@ -1,1 +1,1 @@
-include ':app', ':panorama-lib'
+include ':app', ':panorama-view'
