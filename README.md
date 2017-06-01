@@ -33,18 +33,20 @@ compile 'pl.rjuszczyk:panorama-view:0.0.2'
 
 * image from resources
 
-       panoramaGLSurfaceView.setTexDrawableResourceID(R.drawable.pano2);
-       
+```java
+panoramaGLSurfaceView.setTexDrawableResourceID(R.drawable.pano2);
+```
 
 * image from glide
 
-       Glide.with(getApplicationContext())
-            .load("http://michel.thoby.free.fr/360x180_Vs_360x360_Contreversy/North_South_Panorama_Equirect_360x180.jpg")
-            .asBitmap()
-            .into(new SimpleTarget<Bitmap>() {
-            @Override
-                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                    panoramaGLSurfaceView.setTex_bitmap(resource);
-                }
-            });
-                        `
+```java
+Glide.with(getApplicationContext())
+    .load("http://yourserver.com/panoramas/you-panorama-file.jpg")
+    .asBitmap()
+    .into(new SimpleTarget<Bitmap>() {
+        @Override
+        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+            panoramaGLSurfaceView.setTex_bitmap(resource);
+        }
+     });
+```
