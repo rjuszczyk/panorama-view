@@ -118,11 +118,13 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
 
 
         Mesh sphereMesh = Mesh.getMeshSerialized(mModelResourceId, mResources);
-        if(mTextureResourceId == -1) {
-            sphereMeshWithTexture = new TexturedMesh(sphereMesh, -1);
-        } else {
-            int currentTextureHanlde = mImageDrawer.getTextureHandlerOrLoad(mTextureResourceId);
-            sphereMeshWithTexture = new TexturedMesh(sphereMesh, currentTextureHanlde);
+        if(sphereMeshWithTexture == null) {
+            if (mTextureResourceId == -1) {
+                sphereMeshWithTexture = new TexturedMesh(sphereMesh, -1);
+            } else {
+                int currentTextureHanlde = mImageDrawer.getTextureHandlerOrLoad(mTextureResourceId);
+                sphereMeshWithTexture = new TexturedMesh(sphereMesh, currentTextureHanlde);
+            }
         }
         //sphereMesh = Mesh.getMeshSerialized(mModelResourceId, mResources, mTextureResourceId);
         //imgDrawer.setScreenSize(height, width);
@@ -419,6 +421,7 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     Runnable runnableToDo = null;
 
     public void setTex_resourceID(final int tex_resourceID) {
+        mTextureResourceId = tex_resourceID;
         runnableToDo = new Runnable() {
             @Override
             public void run() {

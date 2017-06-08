@@ -1,6 +1,7 @@
 package pl.rjuszczyk.panorama.viewer;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -82,6 +83,12 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 		if(isInEditMode())
 			return;
 
+		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PanoramaGLSurfaceView, 0, 0);
+
+		int imageResource = a.getResourceId(R.styleable.PanoramaGLSurfaceView_img, -1);
+
+		a.recycle();
+
 		mScaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
 		//mGestureDetector = new GestureDetector(context, new MyOnGestureListener());
 		mMoveDetector = new MoveGestureDetector(context, new MoveListener());
@@ -132,6 +139,10 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 
 		setEGLContextClientVersion(2);
 		setRenderer(mPanoramaRenderer);
+
+		if(imageResource!=-1) {
+			setTexDrawableResourceID(imageResource);
+		}
 	}
 
 	public boolean onTouchEvent(MotionEvent event) {

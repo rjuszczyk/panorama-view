@@ -44,6 +44,8 @@
                 android:id="@+id/panorama"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                app:img="@drawable/pano2"
                 />
         </android.support.v7.widget.CardView>
 
