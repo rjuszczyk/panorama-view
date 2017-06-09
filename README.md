@@ -33,6 +33,15 @@ compile 'pl.rjuszczyk:panorama-view:0.0.3'
 
 * image from resources
 
+```xml
+<pl.rjuszczyk.panorama.viewer.PanoramaGLSurfaceView
+    android:id="@+id/panorama"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:img="@drawable/pano2"
+/>
+```
+
 ```java
 panoramaGLSurfaceView.setTexDrawableResourceID(R.drawable.pano2);
 ```
