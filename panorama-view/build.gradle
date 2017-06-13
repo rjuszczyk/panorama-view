@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/rjuszczyk/Panorama'
     gitUrl = 'https://github.com/rjuszczyk/Panorama.git'
 
-    libraryVersion = '0.0.3'
+    libraryVersion = '0.0.4'
 
     developerId = 'RadekJ'
     developerName = 'Radosław Juszczyk'
@@ -31,8 +31,8 @@ android {
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
-        versionCode 2
-        versionName "1.1"
+        versionCode 3
+        versionName "1.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 

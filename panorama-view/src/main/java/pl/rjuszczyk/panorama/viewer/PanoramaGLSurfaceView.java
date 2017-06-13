@@ -74,6 +74,7 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 		mPanoramaRenderer.setModelScale(mDefaultModelScale);
 
 		setEGLContextClientVersion(2);
+		super.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
 		setRenderer(mPanoramaRenderer);
 	}
 
@@ -138,6 +139,7 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 
 
 		setEGLContextClientVersion(2);
+		super.setEGLConfigChooser(8 , 8, 8, 8, 16, 0);
 		setRenderer(mPanoramaRenderer);
 
 		if(imageResource!=-1) {
