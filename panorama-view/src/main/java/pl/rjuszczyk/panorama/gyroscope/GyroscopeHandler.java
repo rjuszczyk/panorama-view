@@ -204,7 +204,7 @@ public class GyroscopeHandler implements SensorEventListener,
 		if (useRadianUnits) {
 			Log.d("sensor", "x= " + (df.format(gyroscopeOrientationCalibrated[0])) + "	y= " + (df.format(gyroscopeOrientationCalibrated[1])) + "	z= " + (df.format(gyroscopeOrientationCalibrated[2])));
 		} else {
-			// Log.d("sensor", "x= " + (df.format(Math.toDegrees(gyroscopeOrientationCalibrated[0])))+"	y= " + (df.format(Math.toDegrees(gyroscopeOrientationCalibrated[1])))+"	z= " + (df.format(Math.toDegrees(gyroscopeOrientationCalibrated[2]))));
+			// MyLog.d("sensor", "x= " + (df.format(Math.toDegrees(gyroscopeOrientationCalibrated[0])))+"	y= " + (df.format(Math.toDegrees(gyroscopeOrientationCalibrated[1])))+"	z= " + (df.format(Math.toDegrees(gyroscopeOrientationCalibrated[2]))));
 			if (mOnGyroscopeChanged != null) {
 				mOnGyroscopeChanged.onGyroscopeChanged2(currentRotationMatrixCalibrated);
 				mOnGyroscopeChanged.onGyroscopeChange(Math.toDegrees(gyroscopeOrientationCalibrated[0]), Math.toDegrees(gyroscopeOrientationCalibrated[1]), Math.toDegrees(gyroscopeOrientationCalibrated[2]));

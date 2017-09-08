@@ -54,7 +54,7 @@ public class TextureHelper {
 		if (textureHandle[0] == 0) {
 			throw new RuntimeException("Error loading texture.");
 		}
-		Log.i("debug", "texutre loaded");
+		MyLog.i("debug", "texutre loaded");
 		return textureHandle[0];
 	}
 

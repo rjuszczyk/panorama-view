@@ -67,7 +67,7 @@ public class RawImageDrawer {
 
 	public int getTextureHandlerOrLoad(Bitmap bitmap) {
 		if (!textures.containsKey(bitmap.hashCode())) {
-			Log.e("texutre", "" + bitmap.hashCode());
+			MyLog.e("texutre", "" + bitmap.hashCode());
 			loadTexture(bitmap);
 		}
 		int currentReferenceCount = 0;
@@ -106,7 +106,7 @@ public class RawImageDrawer {
 
 	public int getTextureHandlerOrLoad(int r_id) {
 		if (!textures.containsKey(r_id)) {
-			Log.e("texutre", "" + r_id);
+			MyLog.e("texutre", "" + r_id);
 			loadTexture(r_id);
 		}
 		int handle = textures.get(r_id);

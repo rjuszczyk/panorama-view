@@ -28,9 +28,12 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     private final int mPositionDataSize = 3;
     private final int mNormalDataSize = 3;
     private final int mUVDataSize = 2;
+    private final int mModelResourceId;
     public float[] mModelMatrix = new float[16];
+
     public float mCameraZTarget = 1;
 
+    OnDrawListener onDrawListener;
     TexturedMesh sphereMeshWithTexture;
     float ratio;
     long mLastTime = -1;
@@ -39,10 +42,12 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     private int mPerVertexProgramHandle;
     private float[] mProjectionMatrix = new float[16];
     private Resources mResources;
-    private int mModelResourceId, mTextureResourceId;
+    private int mTextureResourceId;
+    private Runnable runnableToDo = null;
+
     private float[] mViewMatrix = new float[16];
-    //private float[] mProjectionMatrix = new float[16];
     private float[] mMVPMatrix = new float[16];
+
     private float[] mLightModelMatrix = new float[16];
     //Handlers start:
     private int mMVPMatrixHandle;
@@ -65,6 +70,7 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     private float mModelRotationZTarget = 0;
     private float velocityX = 0;
     private float velocityY = 0;
+    private boolean invalidated = true;
 
     public PanoramaRenderer(
             Context context,
@@ -108,14 +114,12 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-        // Set the OpenGL viewport to the same size as the surface.
+        invalidated = true;
         GLES20.glViewport(0, 0, width, height);
 
         ratio = (float) width / height;
 
         PerspectiveMatrix.perspectiveM(mProjectionMatrix, 0, 60.0f, ratio, 0.25f, 100.0f);
-        //  gameState.setProjectionMatrix(mProjectionMatrix);
-
 
         Mesh sphereMesh = Mesh.getMeshSerialized(mModelResourceId, mResources);
         if(sphereMeshWithTexture == null) {
@@ -126,18 +130,15 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
                 sphereMeshWithTexture = new TexturedMesh(sphereMesh, currentTextureHanlde);
             }
         }
-        //sphereMesh = Mesh.getMeshSerialized(mModelResourceId, mResources, mTextureResourceId);
-        //imgDrawer.setScreenSize(height, width);
     }
 
     public void resetCamera() {
-
-
         mModelScaleTarget = 1;
         mModelRotationXTarget = 0;
         mModelRotationYTarget = 0;
         mModelRotationZTarget = 0;
         mCameraZTarget = 1;
+        invalidated = true;
     }
 
     public float getModelScale() {
@@ -152,6 +153,7 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
 
         mModelScale = scale;
         mModelScaleTarget = scale;
+        invalidated = true;
     }
 
     public float getModelRotationY() {
@@ -161,22 +163,26 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     public void setModelRotationY(float rotY) {
         mModelRotationY = rotY;
         mModelRotationYTarget = rotY;
+        invalidated = true;
     }
 
     public void setModelRotationZ(float rotZ) {
         mModelRotationZ = rotZ;
         mModelRotationZTarget = rotZ;
+        invalidated = true;
     }
 
     float[] mModelRotationMatrix = null;
 
     public synchronized void setModelRotationMatrix(float[] matrix) {
         mModelRotationMatrix = matrix;
+        invalidated = true;
     }
 
     public void setVelocities(float x, float y) {
         velocityX = x;
         velocityY = y;
+        invalidated = true;
     }
 
     public float getModelRotationX() {
@@ -186,6 +192,7 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     public void setModelRotationX(float rotX) {
         mModelRotationX = rotX;
         mModelRotationXTarget = rotX;
+        invalidated = true;
     }
 
     public void resetModelScale(float defaultScale) {
@@ -201,6 +208,14 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     float fractionPerMs = 2f;
     @Override
     public synchronized void onDrawFrame(GL10 gl) {
+        if(speedX == 0 && speedY == 0) {
+            if (!invalidated) {
+                invalidated = false;
+                return;
+            }
+        }
+
+
         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
 
 
@@ -329,8 +344,18 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
         drawMesh(sphereMeshWithTexture, mProjectionMatrix);
 
         rotate(currentTranslationX, currentTranslationY, true);
+
+        if(onDrawListener != null) {
+            onDrawListener.onModelRotationMatrixChanged(mMVPMatrix);
+        }
+
     }
 
+
+
+    public float[] getMVPMatrix() {
+        return mMVPMatrix;
+    }
 
 
     private float[] convertM9toM16(float[] m9, float[] m16) {
@@ -359,18 +384,7 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
         return v;
     }
 
-    public static void transposeM(float[] mTrans, int mTransOffset, float[] m,
-                                  int mOffset) {
-        for (int i = 0; i < 3; i++) {
-            int mBase = i * 3 + mOffset;
-            mTrans[i + mTransOffset] = m[mBase];
-            mTrans[i + 3 + mTransOffset] = m[mBase + 1];
-            mTrans[i + 6 + mTransOffset] = m[mBase + 2];
-        }
-    }
-
-
-    public void drawMesh(TexturedMesh mesh, float[] mProjectionMatrix) {
+    private void drawMesh(TexturedMesh mesh, float[] mProjectionMatrix) {
         FloatBuffer positionsBuffer = mesh.getMesh().getPositionsBuffer();
         FloatBuffer normalsBuffer = mesh.getMesh().getNormalsBuffer();
         FloatBuffer uvsBuffer = mesh.getMesh().getUVsBuffer();
@@ -417,8 +431,6 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
             runnableToDo = null;
         }
     }
-
-    Runnable runnableToDo = null;
 
     public void setTex_resourceID(final int tex_resourceID) {
         mTextureResourceId = tex_resourceID;
@@ -496,7 +508,7 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
         Matrix.rotateM(identity, 0, v, up[0], up[1], up[2]);
 
         Matrix.multiplyMV(right, 0, identity, 0, right, 0);
-        Log.d("right", String.format("(%f, %f, %f)", right[0], right[1], right[2]));
+        MyLog.d("right", String.format("(%f, %f, %f)", right[0], right[1], right[2]));
     }
 
     public void rotateUp(float v) {
@@ -507,5 +519,9 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
         Matrix.rotateM(identity, 0, v, right[0], right[1], right[2]);
 //
 //        Matrix.multiplyMV(up, 0, identity, 0, up, 0);
+    }
+
+    public void setOnDrawListener(OnDrawListener onDrawListener) {
+        this.onDrawListener = onDrawListener;
     }
 }

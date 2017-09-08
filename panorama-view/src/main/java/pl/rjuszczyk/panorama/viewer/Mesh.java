@@ -2,7 +2,6 @@ package pl.rjuszczyk.panorama.viewer;
 
 import android.content.res.Resources;
 import android.os.SystemClock;
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -16,7 +15,6 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import pl.rjuszczyk.panorama.R;
 import mesh.data.MeshData;
 
 /**
@@ -24,31 +22,78 @@ import mesh.data.MeshData;
  */
 
 public class Mesh {
-	/**
-	 * Used for debug logs.
-	 */
+
 	private static final String TAG = "Mesh";
 	public static HashMap<Integer, Mesh> meshes = new HashMap<Integer, Mesh>();
 	private final int mBytesPerFloat = 4;
-	/**
-	 * Size of the position data in elements.
-	 */
+
 	private final int mPositionDataSize = 3;
-	/**
-	 * Size of the normal data in elements.
-	 */
-	private final int mNormalDataSize = 3;
-	private int mPositionHandle;
-	private int mNormalHandle;
 	private FloatBuffer positions;
 	private FloatBuffer normals;
 	private FloatBuffer uvs;
 	private float[] color;
 	private int trianglesCount;
-	private int mTextureDataHandle;
 
 	public Mesh(int resourceID, Resources resources, float[] colorData) {
-		Log.i("debug", "openning pl.rjuszczyk.panorama.mesh rid=" + resourceID);
+		MeshData meshData = createMeshData(resourceID, resources);
+
+		float[] positionsData = meshData.positions;
+		float[] normalsData = meshData.normals;
+		float[] uvsData = meshData.uvs;
+
+		MyLog.i("debug", "loaded:\nnormals=" + normalsData.length + "\nvertex=" + positionsData.length);
+
+		this.positions = ByteBuffer.allocateDirect(positionsData.length * mBytesPerFloat)
+				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		this.positions.put(positionsData).position(0);
+
+		this.normals = ByteBuffer.allocateDirect(normalsData.length * mBytesPerFloat)
+				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		this.normals.put(normalsData).position(0);
+
+		this.uvs = ByteBuffer.allocateDirect(uvsData.length * mBytesPerFloat)
+				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+		this.uvs.put(uvsData).position(0);
+
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("positionsData = new float[]{");
+		for(int i = 0; i < positionsData.length; i++) {
+			if(i!=positionsData.length-1) {
+				builder.append(String.valueOf(positionsData[i])+"f,");
+			} else {
+				builder.append(String.valueOf(positionsData[i])+"f};\n");
+			}
+		}
+
+		builder.append("normalsData = new float[]{");
+		for(int i = 0; i < normalsData.length; i++) {
+			if(i!=normalsData.length-1) {
+				builder.append(String.valueOf(normalsData[i])+"f,");
+			} else {
+				builder.append(String.valueOf(normalsData[i])+"f};\n");
+			}
+		}
+
+		builder.append("uvsData = new float[]{");
+		for(int i = 0; i < uvsData.length; i++) {
+			if(i!=uvsData.length-1) {
+				builder.append(String.valueOf(uvsData[i])+"f,");
+			} else {
+				builder.append(String.valueOf(uvsData[i])+"f};\n");
+			}
+		}
+		String t =  builder.toString();
+		MyLog.d("data",t);
+
+
+
+		trianglesCount = (int) positionsData.length / mPositionDataSize;
+		color = colorData;
+	}
+
+	public static MeshData createMeshData(int resourceID, Resources resources) {
+		MyLog.i("debug", "openning pl.rjuszczyk.panorama.mesh rid=" + resourceID);
 		// Load the texture
 		//mTextureDataHandle = TextureHelper.loadTexture(resources, R.raw.tex1);
 
@@ -124,11 +169,11 @@ public class Mesh {
 
 			in.close();
 		} catch (FileNotFoundException e) {
-			Log.e(TAG, "File not found exception: " + e.toString());
+			MyLog.e(TAG, "File not found exception: " + e.toString());
 		} catch (IOException e) {
-			Log.e(TAG, "IOException: " + e.toString());
+			MyLog.e(TAG, "IOException: " + e.toString());
 		} catch (Exception e) {
-			Log.e(TAG, "nieznany wyjatek");
+			MyLog.e(TAG, "nieznany wyjatek");
 		}
 		float[] positionsData = new float[vertexIndices.size() * 3];
 		float[] normalsData = new float[vertexIndices.size() * 3];
@@ -160,60 +205,7 @@ public class Mesh {
 			//out_uvs.add(uv);
 			//out_normals.add(normal);
 		}
-
-		for(int i =0; i < positionsData.length; i+=3) {
-			Log.d("posx", ""+positionsData[i]);
-		}
-
-		Log.i("debug", "loaded:\nnormals=" + normalsData.length + "\nvertex=" + positionsData.length);
-
-		this.positions = ByteBuffer.allocateDirect(positionsData.length * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
-		this.positions.put(positionsData).position(0);
-
-		this.normals = ByteBuffer.allocateDirect(normalsData.length * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
-		this.normals.put(normalsData).position(0);
-
-		this.uvs = ByteBuffer.allocateDirect(uvsData.length * mBytesPerFloat)
-				.order(ByteOrder.nativeOrder()).asFloatBuffer();
-		this.uvs.put(uvsData).position(0);
-
-		StringBuilder builder = new StringBuilder();
-
-		builder.append("positionsData = new float[]{");
-		for(int i = 0; i < positionsData.length; i++) {
-			if(i!=positionsData.length-1) {
-				builder.append(String.valueOf(positionsData[i])+"f,");
-			} else {
-				builder.append(String.valueOf(positionsData[i])+"f};\n");
-			}
-		}
-
-		builder.append("normalsData = new float[]{");
-		for(int i = 0; i < normalsData.length; i++) {
-			if(i!=normalsData.length-1) {
-				builder.append(String.valueOf(normalsData[i])+"f,");
-			} else {
-				builder.append(String.valueOf(normalsData[i])+"f};\n");
-			}
-		}
-
-		builder.append("uvsData = new float[]{");
-		for(int i = 0; i < uvsData.length; i++) {
-			if(i!=uvsData.length-1) {
-				builder.append(String.valueOf(uvsData[i])+"f,");
-			} else {
-				builder.append(String.valueOf(uvsData[i])+"f};\n");
-			}
-		}
-		String t =  builder.toString();
-		Log.d("data",t);
-
-
-
-		trianglesCount = (int) positionsData.length / mPositionDataSize;
-		color = colorData;
+		return new MeshData(positionsData, normalsData, uvsData);
 	}
 
 	public Mesh(float[] positionsData, float[] normalsData, float[] uvsData, float[] colorData) {
@@ -263,7 +255,7 @@ public class Mesh {
 			normalsData = meshData.normals;
 			uvsData = meshData.uvs;
 		} catch (Exception e) {
-			Log.e("serialized", "serialization gone wrong");
+			MyLog.e("serialized", "serialization gone wrong");
 			e.printStackTrace();
 		}
 		Mesh mesh = new Mesh(positionsData, normalsData, uvsData, new float[]{1.0f, 0.0f, 0.0f, 1.0f});
@@ -291,7 +283,7 @@ public class Mesh {
 		return color;
 	}
 
-	private class vec3f {
+	private static class vec3f {
 		public float x;
 		public float y;
 		public float z;
@@ -306,7 +298,7 @@ public class Mesh {
 		}
 	}
 
-	private class vec2f {
+	private static class vec2f {
 		public float u;
 		public float v;
 

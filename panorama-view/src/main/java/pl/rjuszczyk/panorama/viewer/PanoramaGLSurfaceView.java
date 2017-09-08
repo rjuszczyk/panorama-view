@@ -3,9 +3,10 @@ package pl.rjuszczyk.panorama.viewer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.PointF;
+
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -19,17 +20,13 @@ import pl.rjuszczyk.panorama.multitouch.RotateGestureDetector;
 
 import pl.rjuszczyk.panorama.gyroscope.GyroscopeHandler;
 
-
-/**
- * Created by radoslaw.juszczyk on 2015-03-18.
- */
 public class PanoramaGLSurfaceView extends GLSurfaceView
 {
 	public static float MAX_X_ROT = 88f;
 	public static float MIN_X_ROT = -88f;
-	private float DEFAULT_TOUCH_SCALE = 0.2f;
-	private float TOUCH_SCALE = 0.2f;
-	//GestureDetector mGestureDetector;
+	private float DEFAULT_TOUCH_SCALE = 0.06f;
+	private float TOUCH_SCALE = 0.06f;
+
 	MoveGestureDetector mMoveDetector;
 	RawImageDrawer mImageDrawer;
 	RotateGestureDetector mRotateGestureDetector;
@@ -40,8 +37,6 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 	private float mDefaultModelScale = 1f;
 	private PanoramaRenderer mPanoramaRenderer;
 	private float mScaleFactor = 1;
-	private float xrot;                    //X Rotation
-	private float yrot;                    //Y Rotation
 	int beginEvents = 0;
 
 	private ScaleGestureDetector mScaleGestureDetector;
@@ -51,7 +46,6 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 	private float[] currentRotationMatrix2;
 	private float currentProgress = 0;
 	private int targetProgress;
-	private long lastTime = System.currentTimeMillis();
 	boolean autoCorrection = false;
 	private Timer timer;
 
@@ -147,28 +141,33 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 		}
 	}
 
+
+
 	public boolean onTouchEvent(MotionEvent event) {
 		boolean retVal = mRotateGestureDetector.onTouchEvent(event);
 		retVal = mScaleGestureDetector.onTouchEvent(event) || retVal;
 
 		retVal = mMoveDetector.onTouchEvent(event) || retVal;
 		retVal = mFlingDetector.onTouchEvent(event) || retVal;
-//		retVal = mGestureDetector.onTouchEvent(event) || retVal;
 		return retVal || super.onTouchEvent(event);
 	}
 
 	@Override
 	protected void onDetachedFromWindow() {
+
+
+		super.onDetachedFromWindow();
+	}
+
+	public void onPause() {
 		gyroscopeHandler.stop();
 		gyroscopeHandler2.stop();
 		if(autoCorrection) {
 			timer.cancel();
 		}
-		super.onDetachedFromWindow();
 	}
-	@Override
-	protected void onAttachedToWindow() {
-		super.onAttachedToWindow();
+
+	public void onResume() {
 		if(isInEditMode())
 			return;
 
@@ -192,12 +191,10 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 				if (isGyroAvailable) {
 					PanoramaGLSurfaceView.this.currentRotationMatrix = currentRotationMatrix;
 					if (currentGyroHandler == 2) {
-						float deltaTime = System.currentTimeMillis() - lastTime;
-						lastTime = System.currentTimeMillis();
 						currentProgress = lerp(0.01f, currentProgress, targetProgress);
 						if (currentProgress < 0.01 && targetProgress == 0) currentProgress = 0;
 						if (currentProgress > 0.99 && targetProgress == 1) currentProgress = 1;
-						Log.d("gyro1", "onGyroscopeChanged2: currentProgress = " + currentProgress);
+						MyLog.d("gyro1", "onGyroscopeChanged2: currentProgress = " + currentProgress);
 					} else {
 						if (PanoramaGLSurfaceView.this.currentRotationMatrix == null ||
 								PanoramaGLSurfaceView.this.currentRotationMatrix2 == null) {
@@ -209,7 +206,7 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 								PanoramaGLSurfaceView.this.currentRotationMatrix2,
 								currentProgress
 						);
-						mPanoramaRenderer.setModelRotationMatrix(rotationMatrix);
+						setModelRotationMatrix(rotationMatrix);
 					}
 				}
 			}
@@ -233,10 +230,8 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 				if (isGyroAvailable) {
 					PanoramaGLSurfaceView.this.currentRotationMatrix2 = currentRotationMatrix;
 					if (currentGyroHandler == 1) {
-						float deltaTime = System.currentTimeMillis() - lastTime;
-						lastTime = System.currentTimeMillis();
 						currentProgress = lerp(0.01f, currentProgress, targetProgress);
-						Log.d("gyro2", "onGyroscopeChanged2: currentProgress = " + currentProgress);
+						MyLog.d("gyro2", "onGyroscopeChanged2: currentProgress = " + currentProgress);
 						if (currentProgress < 0.01 && targetProgress == 0) currentProgress = 0;
 						if (currentProgress > 0.99 && targetProgress == 1) currentProgress = 1;
 
@@ -251,14 +246,14 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 								PanoramaGLSurfaceView.this.currentRotationMatrix2,
 								currentProgress
 						);
-						mPanoramaRenderer.setModelRotationMatrix(rotationMatrix);
+						setModelRotationMatrix(rotationMatrix);
 					}
 				}
 			}
 
 			@Override
 			public void onGyroscopeNotAvailable() {
-                isGyroAvailable = false;
+				isGyroAvailable = false;
 			}
 		});
 
@@ -272,6 +267,16 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 			}, 0, 10000);
 		}
 	}
+
+	private void setModelRotationMatrix(float[] rotationMatrix) {
+		mPanoramaRenderer.setModelRotationMatrix(rotationMatrix);
+	}
+
+	public void setOnDrawListener(OnDrawListener onDrawListener) {
+		mPanoramaRenderer.setOnDrawListener(onDrawListener);
+	}
+
+
 	float[] getCurrentRotationMatrix(
 		float[] matrix1,
 		float[] matrix2,
@@ -290,7 +295,10 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 	}
 
 	public void reset() {
-		Log.d("Panorama", "reset() called");
+		if(gyroscopeHandler == null || gyroscopeHandler2 == null) {
+			return;
+		}
+
 		if(currentGyroHandler==1) {
 			gyroscopeHandler.reset();
 			gyroscopeHandler.restart();
@@ -368,6 +376,22 @@ public class PanoramaGLSurfaceView extends GLSurfaceView
 
 	public void setPanoramaBitmap(Bitmap bitmap) {
 		mPanoramaRenderer.setTextureBitmap(bitmap);
+	}
+
+	public float[] getMVPMatrix() {
+		return mPanoramaRenderer.getMVPMatrix();
+	}
+
+	public PointF unProject(double latitude, double longitude) {
+		float[] posNew = MatrixCalculator.calculateOnScreenPosNormalized(getMVPMatrix(), latitude, longitude);
+
+		int w = getWidth();
+		int h = getHeight();
+		final int x = (int) (w * (1f + posNew[0]) / 2f);
+		int y = (int) (h * (1f + posNew[1]) / 2f);
+		y = h-y;
+
+		return new PointF(x,y);
 	}
 
 	private class MoveListener implements MoveGestureDetector.OnMoveGestureListener {
