@@ -8,14 +8,14 @@ If there is no gyroscope available it can be rotated by touch.
 
 * Grab via Gradle:
 ```groovy
-compile 'pl.rjuszczyk:panorama-view:0.0.5'
+compile 'pl.rjuszczyk:panorama-view:0.0.6'
 ```
 * or Maven:
 ```xml
 <dependency>
   <groupId>pl.rjuszczyk</groupId>
   <artifactId>panorama-view</artifactId>
-  <version>0.0.5</version>
+  <version>0.0.6</version>
   <type>pom</type>
 </dependency>
 ```
@@ -29,6 +29,7 @@ compile 'pl.rjuszczyk:panorama-view:0.0.5'
 * Rotating by touch and by gyroscope in the same time - work in progress.
 * Cubic panoramas - work in progress.
 * unProject from latitude longitude coordinates to on screen coordinates
+* mapping type `app:mappingType="cubic|spherical" //spherical is default`
 
 # Useage
 
