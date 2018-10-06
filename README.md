@@ -30,6 +30,22 @@ compile 'pl.rjuszczyk:panorama-view:0.0.6'
 * Cubic panoramas - work in progress.
 * unProject from latitude longitude coordinates to on screen coordinates
 * mapping type `app:mappingType="cubic|spherical" //spherical is default`
+* NEW - setting initial rotation XYZ
+
+
+#
+For initial rotation use attributes:
+```
+    app:initialRotationX="0"
+    app:initialRotationY="180"
+    app:initialRotationZ="180"
+```
+
+Now you can specify whether to use gyroscope or not:
+```
+    app:gyroscopeEnabled="true"
+```
+If set to false you will control your panorama with touch gestures
 
 # Useage
 

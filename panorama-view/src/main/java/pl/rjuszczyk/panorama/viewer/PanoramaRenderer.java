@@ -72,14 +72,27 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     private float velocityY = 0;
     private boolean invalidated = true;
 
+    private float initialRotationX = 0;
+    private float initialRotationY = 0;
+    private float initialRotationZ = 0;
+
+
     public PanoramaRenderer(
             Context context,
             RawImageDrawer imageDrawer,
-            int modelResourceId) {
+            int modelResourceId,
+            float initialRotationX,
+            float initialRotationY,
+            float initialRotationZ
+    ) {
         mResources = context.getResources();
         mImageDrawer = imageDrawer;
         mModelResourceId = modelResourceId;
         mTextureResourceId = -1;
+
+        this.initialRotationX = initialRotationX;
+        this.initialRotationY = initialRotationY;
+        this.initialRotationZ = initialRotationZ;
         initTouchRotation();
     }
 
@@ -326,6 +339,8 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
 //
             Matrix.rotateM(mModelMatrix, 0, 90, 1, 0, 0);
             Matrix.multiplyMM(mModelMatrix, 0, v, 0, mModelMatrix, 0);
+
+            Matrix.multiplyMM(mModelMatrix, 0, mModelMatrix, 0,touchRotationMatrix,0);
         } else {
 //            float[] right = new float[]{0, 0, 1, 0};
 //            Matrix.rotateM(mModelMatrix, 0, -mModelRotationX, 1.0f, 0.0f, 0.0f);
@@ -466,13 +481,18 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     public void initTouchRotation() {
         Matrix.setIdentityM(touchRotationMatrix, 0);
 
-        //Matrix.rotateM(touchRotationMatrix, 0, 90, 1, 0, 0);
+        Matrix.rotateM(touchRotationMatrix, 0, initialRotationX, 1, 0, 0);
+        Matrix.rotateM(touchRotationMatrix, 0, initialRotationY, 0, 1, 0);
+        Matrix.rotateM(touchRotationMatrix, 0, initialRotationZ, 0, 0, 1);
     }
 
     public void rotate(float x, float y) {
         rotate(x,y,false);
     }
     public void rotate(float x, float y, boolean bySpeed) {
+        if(mModelRotationMatrix != null) return;
+
+
         if(!bySpeed) {
             speedX = 0;
             speedY = 0;
@@ -491,6 +511,8 @@ public class PanoramaRenderer implements GLSurfaceView.Renderer {
     }
 
     public void rotateZ(float z) {
+        if(mModelRotationMatrix != null) return;
+
         float[] identity = new float[16];
         Matrix.setIdentityM(identity, 0);
         Matrix.rotateM(identity, 0, z, 0,0,1);

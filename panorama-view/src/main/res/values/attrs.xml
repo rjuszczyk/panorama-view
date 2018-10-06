@@ -2,5 +2,9 @@
 <resources>
     <declare-styleable name="PanoramaGLSurfaceView">
         <attr name="img" format="reference" />
+        <attr name="gyroscopeEnabled" format="boolean" />
+        <attr name="initialRotationX" format="float" />
+        <attr name="initialRotationY" format="float" />
+        <attr name="initialRotationZ" format="float" />
     </declare-styleable>
 </resources>

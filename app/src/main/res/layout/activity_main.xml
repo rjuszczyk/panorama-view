@@ -46,6 +46,10 @@
                 android:layout_height="match_parent"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 app:img="@drawable/pano2"
+                app:gyroscopeEnabled="true"
+                app:initialRotationX="0"
+                app:initialRotationY="180"
+                app:initialRotationZ="180"
                 />
         </android.support.v7.widget.CardView>
 
