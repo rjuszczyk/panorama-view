@@ -8,14 +8,14 @@ If there is no gyroscope available it can be rotated by touch.
 
 * Grab via Gradle:
 ```groovy
-compile 'pl.rjuszczyk:panorama-view:0.0.6'
+compile 'pl.rjuszczyk:panorama-view:0.0.7'
 ```
 * or Maven:
 ```xml
 <dependency>
   <groupId>pl.rjuszczyk</groupId>
   <artifactId>panorama-view</artifactId>
-  <version>0.0.6</version>
+  <version>0.0.7</version>
   <type>pom</type>
 </dependency>
 ```
